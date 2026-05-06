@@ -49,8 +49,8 @@ const DraggablePosition: React.FC<DraggablePositionProps> = ({
       whileDrag={{ scale: 1.1 }}
     >
       {position.player ? (
-        <div className="relative w-14 h-14 sm:w-12 sm:h-12 rounded-full flex flex-col items-center justify-center text-white font-bold text-xs shadow-lg transition-all duration-200 border border-white/40 backdrop-blur-sm">
-          <div className="text-xs font-medium truncate max-w-12 sm:max-w-10 drop-shadow-md">{position.player.name}</div>
+        <div className="relative min-w-14 h-14 sm:min-w-12 sm:h-12 px-3 py-2 rounded-full flex flex-col items-center justify-center text-white font-bold text-xs shadow-lg transition-all duration-200 border border-white/40 backdrop-blur-sm">
+          <div className="text-xs font-medium text-center drop-shadow-md whitespace-normal">{position.player.name}</div>
         </div>
       ) : (
         <div className="w-14 h-14 sm:w-12 sm:h-12 rounded-full bg-white/10 border border-white/40 flex items-center justify-center text-white/80 text-xs font-medium cursor-pointer hover:bg-white/20 active:bg-white/30">
@@ -66,7 +66,7 @@ const DraggablePosition: React.FC<DraggablePositionProps> = ({
               key={sub.id}
               className="px-2 py-0.5 bg-gradient-to-r from-cyan-500/40 to-blue-500/40 backdrop-blur-md border border-cyan-400/50 rounded-full whitespace-nowrap"
             >
-              <div className="text-xs font-medium text-cyan-100 truncate max-w-20">
+              <div className="text-xs font-medium text-cyan-100 whitespace-normal text-center">
                 S{index + 1}: {sub.name}
               </div>
             </div>
