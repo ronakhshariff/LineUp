@@ -64,11 +64,9 @@ const DraggablePosition: React.FC<DraggablePositionProps> = ({
           {position.subs.slice(0, 4).map((sub, index) => (
             <div
               key={sub.id}
-              className="px-2 py-0.5 bg-gradient-to-r from-cyan-500/40 to-blue-500/40 backdrop-blur-md border border-cyan-400/50 rounded-full whitespace-nowrap"
+              className="text-xs font-medium text-cyan-100 whitespace-normal text-center"
             >
-              <div className="text-xs font-medium text-cyan-100 whitespace-normal text-center">
-                S{index + 1}: {sub.name}
-              </div>
+              S{index + 1}: {sub.name}
             </div>
           ))}
         </div>
