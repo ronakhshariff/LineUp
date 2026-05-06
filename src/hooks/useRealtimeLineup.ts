@@ -12,6 +12,7 @@ export const useRealtimeLineup = (initialFormation: Formation) => {
     const lineupRef = ref(database, 'lineup');
     
     const unsubscribe = onValue(lineupRef, (snapshot) => {
+      console.log('Firebase data received:', snapshot.val());
       const data = snapshot.val();
       if (data) {
         setPositions(data.positions || initialFormation.positions);
@@ -29,6 +30,7 @@ export const useRealtimeLineup = (initialFormation: Formation) => {
   // Update positions in real-time
   const updatePositions = useCallback((updater: (prev: Position[]) => Position[]) => {
     const newPositions = updater(positions);
+    console.log('Firebase updating positions:', newPositions);
     const lineupRef = ref(database, 'lineup');
     update(lineupRef, {
       positions: newPositions,
@@ -52,6 +54,7 @@ export const useRealtimeLineup = (initialFormation: Formation) => {
 
   // Clear all positions
   const clearAll = useCallback(() => {
+    console.log('Firebase clearing all positions');
     const lineupRef = ref(database, 'lineup');
     const clearedPositions = currentFormation.positions.map(pos => ({ 
       ...pos, 

@@ -234,6 +234,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
+      {/* Connection Status */}
+      {isConnected && (
+        <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium z-30">
+          🟢 Connected
+        </div>
+      )}
+      
       {/* Clear Button - Top Left */}
       <motion.button
         initial={{ opacity: 0, x: -20 }}
