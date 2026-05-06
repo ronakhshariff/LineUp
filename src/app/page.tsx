@@ -11,8 +11,8 @@ import { motion } from 'framer-motion';
 import ActionModal from '@/components/ActionModal';
 
 export default function Home() {
-  const [currentFormation, setCurrentFormation] = useState<Formation>(formations['4-3-3']);
-  const [positions, setPositions] = useState<Position[]>(formations['4-3-3'].positions);
+  const [currentFormation, setCurrentFormation] = useState<Formation>(formations['4-3-3 (1)']);
+  const [positions, setPositions] = useState<Position[]>(formations['4-3-3 (1)'].positions);
   const [selectedPosition, setSelectedPosition] = useState<string | undefined>();
   const [showPlayerSelector, setShowPlayerSelector] = useState(false);
   const [selectedPositionForPlayer, setSelectedPositionForPlayer] = useState<Position | null>(null);
@@ -360,12 +360,12 @@ export default function Home() {
                   <div className="space-y-3">
                     <button
                       onClick={() => {
-                        setPositions(formations['4-3-3'].positions);
-                        setCurrentFormation(formations['4-3-3']);
+                        setPositions(formations['4-3-3 (1)'].positions);
+                        setCurrentFormation(formations['4-3-3 (1)']);
                       }}
                       className="w-full bg-white/10 text-white/80 py-2 px-4 rounded border border-white/20 hover:bg-white/20 transition-colors"
                     >
-                      Reset to 4-3-3
+                      Reset to 4-3-3 (1)
                     </button>
                     <button
                       onClick={() => {
