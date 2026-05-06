@@ -61,36 +61,43 @@ const ActionModal: React.FC<ActionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-end justify-center z-50">
-      <div className="bg-white rounded-t-3xl w-full max-w-lg max-h-[85vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-6">
+          <div>
             <h2 className="text-xl font-bold text-gray-900">
-              {position.player?.name} - {position.role}
+              {position.player?.name}
             </h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-600" />
-            </button>
+            <p className="text-sm text-gray-500">{position.role}</p>
           </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
         </div>
 
         {!action ? (
-          <div className="p-6 space-y-3">
+          <div className="space-y-4">
             <button
               onClick={() => setAction('replace')}
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-xl transition-colors duration-200"
+              className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-4 px-6 rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2"
             >
-              Replace Player
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Replace Player</span>
             </button>
             <button
               onClick={() => setAction('addsub')}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-xl transition-colors duration-200"
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-4 px-6 rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2"
             >
-              Add Substitute
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Add Substitute</span>
             </button>
           </div>
         ) : (
