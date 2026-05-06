@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback } from 'react';
 import { Position, Player, Formation } from '@/types';
@@ -8,7 +8,6 @@ import PlayerSelector from '@/components/PlayerSelector';
 import FormationSelector from '@/components/FormationSelector';
 import SubstituteModal from '@/components/SubstituteModal';
 import { motion } from 'framer-motion';
-import ActionModal from '@/components/ActionModal';
 
 export default function Home() {
   const [currentFormation, setCurrentFormation] = useState<Formation>(formations['4-3-3']);
@@ -19,8 +18,6 @@ export default function Home() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [showSubstituteModal, setShowSubstituteModal] = useState(false);
   const [substitutePosition, setSubstitutePosition] = useState<Position | null>(null);
-  const [showActionModal, setShowActionModal] = useState(false);
-  const [actionPosition, setActionPosition] = useState<Position | null>(null);
 
   const handleFormationChange = useCallback((formation: Formation) => {
     setCurrentFormation(formation);
@@ -34,16 +31,8 @@ export default function Home() {
 
   const handlePositionClick = useCallback((position: Position) => {
     setSelectedPosition(position.id);
-    
-    if (position.player) {
-      // Show action modal for positions with existing players
-      setActionPosition(position);
-      setShowActionModal(true);
-    } else {
-      // Show player selector for empty positions
-      setSelectedPositionForPlayer(position);
-      setShowPlayerSelector(true);
-    }
+    setSelectedPositionForPlayer(position);
+    setShowPlayerSelector(true);
   }, []);
 
   const handlePositionUpdate = useCallback((id: string, x: number, y: number) => {
@@ -115,130 +104,41 @@ export default function Home() {
   }, []);
 
   const handleClearAll = useCallback(() => {
-    setPositions(prev => prev.map(pos => ({ ...pos, player: undefined, sub: undefined, subs: [] })));
+    setPositions(prev => prev.map(pos => ({ ...pos, player: undefined, sub: undefined })));
     setSelectedPosition(undefined);
   }, []);
 
-  const handleReplacePlayer = useCallback((newPlayer: Player) => {
-    if (!actionPosition) return;
-    
-    setPositions(prev => prev.map(pos => {
-      if (pos.id === actionPosition.id) {
-        // Move current player to subs if they exist
-        const currentSubs = pos.subs || [];
-        if (pos.player) {
-          return { ...pos, player: newPlayer, subs: [...currentSubs, pos.player] };
-        }
-        return { ...pos, player: newPlayer };
-      }
-      return pos;
-    }));
-    
-    setShowActionModal(false);
-    setActionPosition(null);
-  }, [actionPosition]);
-
-  const handleAddSubstitute = useCallback((player: Player) => {
-    if (!actionPosition) return;
-    
-    setPositions(prev => prev.map(pos => {
-      if (pos.id === actionPosition.id) {
-        const currentSubs = pos.subs || [];
-        // Limit to 4 subs
-        if (currentSubs.length < 4) {
-          return { ...pos, subs: [...currentSubs, player] };
-        }
-      }
-      return pos;
-    }));
-    
-    setShowActionModal(false);
-    setActionPosition(null);
-  }, [actionPosition]);
-
-  const generateLineupText = useCallback(() => {
-    let text = `Formation: ${currentFormation.name}\n`;
-    text += `Generated: ${new Date().toLocaleString()}\n\n`;
-    text += 'STARTING XI:\n';
-    text += '=============\n\n';
-    
-    positions.forEach((pos) => {
-      if (pos.player) {
-        text += `${pos.role}: ${pos.player.name}\n`;
-      }
-    });
-    
-    text += '\nSUBSTITUTES:\n';
-    text += '=============\n\n';
-    
-    positions.forEach((pos) => {
-      if (pos.subs && pos.subs.length > 0) {
-        text += `${pos.role} (${pos.player?.name || 'Empty'}):\n`;
-        pos.subs.forEach((sub, index) => {
-          text += `  S${index + 1}: ${sub.name}\n`;
-        });
-      }
-    });
-    
-    return text;
-  }, [currentFormation.name, positions]);
-
-  const handleDownload = useCallback(() => {
-    // Create a clean version of the field without controls
-    const element = document.getElementById('soccer-field');
-    if (!element) return;
-
-    // Use html2canvas to capture the field
-    import('html2canvas').then((html2canvas) => {
-      html2canvas.default(element, {
-        backgroundColor: '#0f172a',
-        scale: 2,
-        useCORS: true,
-      }).then((canvas: HTMLCanvasElement) => {
-        // Convert to blob and download
-        canvas.toBlob((blob: Blob | null) => {
-          if (blob) {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `lineup-${currentFormation.name}-${Date.now()}.png`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          }
-        }, 'image/png');
-      });
-    }).catch(() => {
-      // Fallback: create a simple text export
-      const lineupText = generateLineupText();
-      const blob = new Blob([lineupText], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `lineup-${currentFormation.name}-${Date.now()}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    });
-  }, [currentFormation.name, positions, generateLineupText]);
-
   const allPlayers = positions
-    .map(pos => [pos.player, pos.sub, ...(pos.subs || [])])
+    .map(pos => [pos.player, pos.sub])
     .flat()
     .filter((player): player is Player => player !== undefined);
 
   return (
-    <div className="min-h-screen bg-gray-50 relative">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Midnight Nebula Background */}
+      <div className="fixed inset-0 bg-gradient-radial from-indigo-900 via-blue-950 to-black">
+        {/* Stardust Layer */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 1px, transparent 1px),
+                             radial-gradient(circle at 60% 70%, rgba(100,200,255,0.1) 1px, transparent 1px),
+                             radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px, 80px 80px, 60px 60px'
+          }} />
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="relative z-10 min-h-screen flex flex-col">
+
       {/* Edit Mode Toggle */}
       <motion.button
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
-        whileHover={{ scale: 1.05 }}
+        whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsEditMode(!isEditMode)}
-        className="fixed top-6 right-6 bg-white border border-gray-200 rounded-lg p-3 text-gray-700 font-medium z-30 shadow-sm"
+        className="fixed top-6 right-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg p-3 text-white font-medium z-30"
       >
         {isEditMode ? 'Done' : 'Edit'}
       </motion.button>
@@ -254,17 +154,15 @@ export default function Home() {
               >
                 <SoccerField
                   positions={positions}
-                  onPositionClick={handlePositionClick}
-                  onPositionUpdate={handlePositionUpdate}
+                  onPositionClick={isEditMode ? handlePositionUpdate : handlePositionClick}
                   selectedPosition={selectedPosition}
-                  isEditMode={isEditMode}
                 />
               </motion.div>
             </div>
 
             <div className="space-y-6">
-              {/* Formation selector only in edit mode */}
-              {isEditMode && (
+              {/* Formation selector only in normal mode */}
+              {!isEditMode && (
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -279,7 +177,7 @@ export default function Home() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handleFormationChange(formation)}
-                        className={`px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
+                        className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                           currentFormation.name === formation.name
                             ? 'bg-cyan-500 text-white'
                             : 'bg-white/10 text-white/80 hover:bg-white/20'
@@ -292,8 +190,8 @@ export default function Home() {
                 </motion.div>
               )}
 
-              {/* Player list only in edit mode */}
-              {isEditMode && (
+              {/* Player list only in normal mode */}
+              {!isEditMode && (
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -381,7 +279,6 @@ export default function Home() {
               )}
             </div>
           </div>
-        </div>
 
         {/* Simple Status Bar */}
         <motion.div
@@ -398,34 +295,8 @@ export default function Home() {
             </div>
           </div>
         </motion.div>
-
-        {/* Download Button */}
-        <motion.button
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleDownload}
-          className="fixed bottom-6 right-6 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg z-30 transition-colors duration-200"
-          title="Download Lineup"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-        </motion.button>
-
-      {/* Action Modal */}
-      {showActionModal && actionPosition && (
-        <ActionModal
-          position={actionPosition}
-          onClose={() => {
-            setShowActionModal(false);
-            setActionPosition(null);
-          }}
-          onReplace={handleReplacePlayer}
-          onAddSub={handleAddSubstitute}
-        />
-      )}
       </div>
+    </div>
   );
 }
+
