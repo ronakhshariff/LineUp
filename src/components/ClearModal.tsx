@@ -49,7 +49,10 @@ const ClearModal: React.FC<ClearModalProps> = ({ isOpen, onClose, onConfirm }) =
             Cancel
           </button>
           <button
-            onClick={onConfirm}
+            onClick={() => {
+              console.log('Clear modal confirm clicked!');
+              onConfirm();
+            }}
             className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2"
           >
             <Trash2 className="w-4 h-4" />

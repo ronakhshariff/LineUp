@@ -247,7 +247,10 @@ export default function Home() {
         animate={{ opacity: 1, x: 0 }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        onClick={() => setShowClearModal(true)}
+        onClick={() => {
+          console.log('Clear button clicked!');
+          setShowClearModal(true);
+        }}
         className="fixed top-6 left-6 bg-red-500 hover:bg-red-600 text-white rounded-lg p-3 z-30 shadow-sm"
         title="Clear Lineup"
       >
