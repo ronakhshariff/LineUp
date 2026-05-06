@@ -9,6 +9,7 @@ import FormationSelector from '@/components/FormationSelector';
 import SubstituteModal from '@/components/SubstituteModal';
 import { motion } from 'framer-motion';
 import ActionModal from '@/components/ActionModal';
+import ClearModal from '@/components/ClearModal';
 import { useRealtimeLineup } from '@/hooks/useRealtimeLineup';
 
 export default function Home() {
@@ -29,6 +30,7 @@ export default function Home() {
   const [substitutePosition, setSubstitutePosition] = useState<Position | null>(null);
   const [showActionModal, setShowActionModal] = useState(false);
   const [actionPosition, setActionPosition] = useState<Position | null>(null);
+  const [showClearModal, setShowClearModal] = useState(false);
 
   const handleFormationChange = useCallback((formation: Formation) => {
     updateFormation(formation);
@@ -232,6 +234,21 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
+      {/* Clear Button - Top Left */}
+      <motion.button
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setShowClearModal(true)}
+        className="fixed top-6 left-6 bg-red-500 hover:bg-red-600 text-white rounded-lg p-3 z-30 shadow-sm"
+        title="Clear Lineup"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </motion.button>
+
       {/* Edit Mode Toggle */}
       <motion.button
         initial={{ opacity: 0, x: 20 }}
@@ -425,6 +442,16 @@ export default function Home() {
           onAddSub={handleAddSubstitute}
         />
       )}
+
+      {/* Clear Modal */}
+      <ClearModal
+        isOpen={showClearModal}
+        onClose={() => setShowClearModal(false)}
+        onConfirm={() => {
+          clearAll();
+          setShowClearModal(false);
+        }}
+      />
       </div>
   );
 }
