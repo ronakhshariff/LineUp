@@ -9,6 +9,7 @@ interface SoccerFieldProps {
   positions: Position[];
   onPositionClick: (position: Position) => void;
   onPositionUpdate: (id: string, x: number, y: number) => void;
+  onRemoveSub?: (positionId: string, subIndex: number) => void;
   selectedPosition?: string;
   isEditMode?: boolean;
 }
@@ -17,6 +18,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
   positions,
   onPositionClick,
   onPositionUpdate,
+  onRemoveSub,
   selectedPosition,
   isEditMode,
 }) => {
@@ -60,6 +62,7 @@ const SoccerField: React.FC<SoccerFieldProps> = ({
           position={position}
           onPositionClick={onPositionClick}
           onPositionUpdate={onPositionUpdate}
+          onRemoveSub={onRemoveSub}
           isSelected={selectedPosition === position.id}
           isEditMode={isEditMode}
         />

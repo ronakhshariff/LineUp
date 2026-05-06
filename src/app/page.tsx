@@ -159,6 +159,17 @@ export default function Home() {
     setActionPosition(null);
   }, [actionPosition, updatePositions]);
 
+  const handleRemoveSubstitute = useCallback((positionId: string, subIndex: number) => {
+    updatePositions(prev => prev.map((pos: Position) => {
+      if (pos.id === positionId && pos.subs) {
+        const newSubs = [...pos.subs];
+        newSubs.splice(subIndex, 1);
+        return { ...pos, subs: newSubs };
+      }
+      return pos;
+    }));
+  }, [updatePositions]);
+
   const generateLineupText = useCallback(() => {
     let text = `Formation: ${currentFormation.name}\n`;
     text += `Generated: ${new Date().toLocaleString()}\n\n`;
@@ -284,6 +295,7 @@ export default function Home() {
                   positions={positions}
                   onPositionClick={handlePositionClick}
                   onPositionUpdate={handlePositionUpdate}
+                  onRemoveSub={handleRemoveSubstitute}
                   selectedPosition={selectedPosition}
                   isEditMode={isEditMode}
                 />

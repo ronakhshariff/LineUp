@@ -7,6 +7,7 @@ interface DraggablePositionProps {
   position: Position;
   onPositionClick: (position: Position) => void;
   onPositionUpdate: (id: string, x: number, y: number) => void;
+  onRemoveSub?: (positionId: string, subIndex: number) => void;
   isSelected?: boolean;
   isEditMode?: boolean;
 }
@@ -15,6 +16,7 @@ const DraggablePosition: React.FC<DraggablePositionProps> = ({
   position,
   onPositionClick,
   onPositionUpdate,
+  onRemoveSub,
   isSelected,
   isEditMode,
 }) => {
@@ -64,9 +66,14 @@ const DraggablePosition: React.FC<DraggablePositionProps> = ({
           {position.subs.slice(0, 4).map((sub, index) => (
             <div
               key={sub.id}
-              className="text-xs font-medium text-cyan-100 whitespace-nowrap text-center"
+              className="text-xs font-medium text-cyan-100 whitespace-nowrap text-center cursor-pointer hover:text-red-300 transition-colors group relative"
+              onClick={() => onRemoveSub && onRemoveSub(position.id, index)}
+              title={`Click to remove ${sub.name}`}
             >
               S{index + 1}: {sub.name}
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                ×
+              </span>
             </div>
           ))}
         </div>
