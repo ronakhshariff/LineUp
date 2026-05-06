@@ -1,13 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Position } from '@/types';
+import { Position, Player } from '@/types';
 
 interface DraggablePositionProps {
   position: Position;
   onPositionClick: (position: Position) => void;
   onPositionUpdate: (id: string, x: number, y: number) => void;
-  onRemoveSub?: (positionId: string, subIndex: number) => void;
+  onSubstituteClick?: (positionId: string, subIndex: number, sub: Player) => void;
   isSelected?: boolean;
   isEditMode?: boolean;
 }
@@ -16,7 +16,7 @@ const DraggablePosition: React.FC<DraggablePositionProps> = ({
   position,
   onPositionClick,
   onPositionUpdate,
-  onRemoveSub,
+  onSubstituteClick,
   isSelected,
   isEditMode,
 }) => {
@@ -67,12 +67,12 @@ const DraggablePosition: React.FC<DraggablePositionProps> = ({
             <button
               key={sub.id}
               className="text-xs font-medium text-cyan-100 whitespace-nowrap text-center cursor-pointer hover:text-red-300 transition-colors group relative py-1 px-2 rounded hover:bg-red-500/20 active:bg-red-500/30"
-              onClick={() => onRemoveSub && onRemoveSub(position.id, index)}
-              title={`Click to remove ${sub.name}`}
+              onClick={() => onSubstituteClick && onSubstituteClick(position.id, index, sub)}
+              title={`Click for ${sub.name} options`}
             >
               S{index + 1}: {sub.name}
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                ×
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                ⋯
               </span>
             </button>
           ))}

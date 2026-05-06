@@ -32,6 +32,7 @@ const defaultPlayers: Player[] = [
   { id: '19', name: 'Zach' },
   { id: '20', name: 'Aidan' },
   { id: '21', name: 'Easton' },
+  { id: '22', name: 'Samim' },
 ];
 
 const PlayerSelector: React.FC<PlayerSelectorProps> = ({

@@ -10,6 +10,7 @@ import SubstituteModal from '@/components/SubstituteModal';
 import { motion } from 'framer-motion';
 import ActionModal from '@/components/ActionModal';
 import ClearModal from '@/components/ClearModal';
+import SubstituteActionModal from '@/components/SubstituteActionModal';
 import { useRealtimeLineup } from '@/hooks/useRealtimeLineup';
 
 export default function Home() {
@@ -31,6 +32,8 @@ export default function Home() {
   const [showActionModal, setShowActionModal] = useState(false);
   const [actionPosition, setActionPosition] = useState<Position | null>(null);
   const [showClearModal, setShowClearModal] = useState(false);
+  const [showSubstituteActionModal, setShowSubstituteActionModal] = useState(false);
+  const [selectedSubstitute, setSelectedSubstitute] = useState<{positionId: string, subIndex: number, sub: Player} | null>(null);
 
   const handleFormationChange = useCallback((formation: Formation) => {
     updateFormation(formation);
@@ -55,11 +58,6 @@ export default function Home() {
       pos.id === id ? { ...pos, x, y } : pos
     ));
   }, [updatePositions]);
-
-  const handleSubstituteClick = useCallback((position: Position) => {
-    setSubstitutePosition(position);
-    setShowSubstituteModal(true);
-  }, []);
 
   const handleSubstituteAction = useCallback((action: 'replace' | 'add', player: Player) => {
     if (action === 'replace') {
@@ -141,34 +139,59 @@ export default function Home() {
     setActionPosition(null);
   }, [actionPosition, updatePositions]);
 
-  const handleAddSubstitute = useCallback((player: Player) => {
-    if (!actionPosition) return;
+  const handleSubstituteClick = useCallback((positionId: string, subIndex: number, sub: Player) => {
+    setSelectedSubstitute({ positionId, subIndex, sub });
+    setShowSubstituteActionModal(true);
+  }, []);
+
+  const handleReplaceSubstitute = useCallback((newPlayer: Player) => {
+    if (!selectedSubstitute) return;
     
     updatePositions(prev => prev.map((pos: Position) => {
-      if (pos.id === actionPosition.id) {
-        const currentSubs = pos.subs || [];
-        // Limit to 4 subs
+      if (pos.id === selectedSubstitute.positionId && pos.subs) {
+        const newSubs = [...pos.subs];
+        newSubs[selectedSubstitute.subIndex] = newPlayer;
+        return { ...pos, subs: newSubs };
+      }
+      return pos;
+    }));
+    
+    setShowSubstituteActionModal(false);
+    setSelectedSubstitute(null);
+  }, [selectedSubstitute, updatePositions]);
+
+  const handleAddSubstitute = useCallback((newPlayer: Player) => {
+    if (!selectedSubstitute) return;
+    
+    updatePositions(prev => prev.map((pos: Position) => {
+      if (pos.id === selectedSubstitute.positionId && pos.subs) {
+        const currentSubs = [...pos.subs];
         if (currentSubs.length < 4) {
-          return { ...pos, subs: [...currentSubs, player] };
+          return { ...pos, subs: [...currentSubs, newPlayer] };
         }
       }
       return pos;
     }));
     
-    setShowActionModal(false);
-    setActionPosition(null);
-  }, [actionPosition, updatePositions]);
+    setShowSubstituteActionModal(false);
+    setSelectedSubstitute(null);
+  }, [selectedSubstitute, updatePositions]);
 
-  const handleRemoveSubstitute = useCallback((positionId: string, subIndex: number) => {
+  const handleRemoveSubstitute = useCallback(() => {
+    if (!selectedSubstitute) return;
+    
     updatePositions(prev => prev.map((pos: Position) => {
-      if (pos.id === positionId && pos.subs) {
+      if (pos.id === selectedSubstitute.positionId && pos.subs) {
         const newSubs = [...pos.subs];
-        newSubs.splice(subIndex, 1);
+        newSubs.splice(selectedSubstitute.subIndex, 1);
         return { ...pos, subs: newSubs };
       }
       return pos;
     }));
-  }, [updatePositions]);
+    
+    setShowSubstituteActionModal(false);
+    setSelectedSubstitute(null);
+  }, [selectedSubstitute, updatePositions]);
 
   const generateLineupText = useCallback(() => {
     let text = `Formation: ${currentFormation.name}\n`;
@@ -295,7 +318,7 @@ export default function Home() {
                   positions={positions}
                   onPositionClick={handlePositionClick}
                   onPositionUpdate={handlePositionUpdate}
-                  onRemoveSub={handleRemoveSubstitute}
+                  onSubstituteClick={handleSubstituteClick}
                   selectedPosition={selectedPosition}
                   isEditMode={isEditMode}
                 />
@@ -474,6 +497,23 @@ export default function Home() {
           setShowClearModal(false);
         }}
       />
+
+      {/* Substitute Action Modal */}
+      {showSubstituteActionModal && selectedSubstitute && (
+        <SubstituteActionModal
+          isOpen={showSubstituteActionModal}
+          onClose={() => {
+            setShowSubstituteActionModal(false);
+            setSelectedSubstitute(null);
+          }}
+          substitute={selectedSubstitute.sub}
+          positionId={selectedSubstitute.positionId}
+          subIndex={selectedSubstitute.subIndex}
+          onReplace={handleReplaceSubstitute}
+          onAdd={handleAddSubstitute}
+          onRemove={handleRemoveSubstitute}
+        />
+      )}
       </div>
   );
 }
