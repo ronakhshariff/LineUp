@@ -9,10 +9,18 @@ import FormationSelector from '@/components/FormationSelector';
 import SubstituteModal from '@/components/SubstituteModal';
 import { motion } from 'framer-motion';
 import ActionModal from '@/components/ActionModal';
+import { useRealtimeLineup } from '@/hooks/useRealtimeLineup';
 
 export default function Home() {
-  const [currentFormation, setCurrentFormation] = useState<Formation>(formations['4-3-3 (1)']);
-  const [positions, setPositions] = useState<Position[]>(formations['4-3-3 (1)'].positions);
+  const {
+    positions,
+    currentFormation,
+    isConnected,
+    updatePositions,
+    updateFormation,
+    clearAll
+  } = useRealtimeLineup(formations['4-3-3 (1)']);
+
   const [selectedPosition, setSelectedPosition] = useState<string | undefined>();
   const [showPlayerSelector, setShowPlayerSelector] = useState(false);
   const [selectedPositionForPlayer, setSelectedPositionForPlayer] = useState<Position | null>(null);
@@ -23,14 +31,8 @@ export default function Home() {
   const [actionPosition, setActionPosition] = useState<Position | null>(null);
 
   const handleFormationChange = useCallback((formation: Formation) => {
-    setCurrentFormation(formation);
-    setPositions(formation.positions.map(pos => ({
-      ...pos,
-      player: undefined,
-      sub: undefined,
-    })));
-    setSelectedPosition(undefined);
-  }, []);
+    updateFormation(formation);
+  }, [updateFormation]);
 
   const handlePositionClick = useCallback((position: Position) => {
     setSelectedPosition(position.id);
@@ -47,10 +49,10 @@ export default function Home() {
   }, []);
 
   const handlePositionUpdate = useCallback((id: string, x: number, y: number) => {
-    setPositions(prev => prev.map(pos => 
+    updatePositions(prev => prev.map((pos: Position) => 
       pos.id === id ? { ...pos, x, y } : pos
     ));
-  }, []);
+  }, [updatePositions]);
 
   const handleSubstituteClick = useCallback((position: Position) => {
     setSubstitutePosition(position);
@@ -60,17 +62,17 @@ export default function Home() {
   const handleSubstituteAction = useCallback((action: 'replace' | 'add', player: Player) => {
     if (action === 'replace') {
       // Replace existing player with substitute
-      setPositions(prev => prev.map(pos => 
+      updatePositions(prev => prev.map((pos: Position) => 
         pos.id === substitutePosition?.id ? { ...pos, sub: player } : pos
       ));
     } else if (action === 'add') {
       // Add new substitute to the position
-      setPositions(prev => prev.map(pos => 
+      updatePositions(prev => prev.map((pos: Position) => 
         pos.id === substitutePosition?.id ? { ...pos, subs: [...(pos.subs || []), player] } : pos
       ));
     }
     setShowSubstituteModal(false);
-  }, [substitutePosition]);
+  }, [substitutePosition, updatePositions]);
 
   const handleSaveFormation = useCallback(() => {
     // Save current formation and positions to custom formation
@@ -78,14 +80,13 @@ export default function Home() {
       name: 'custom',
       positions: positions,
     };
-    setPositions(customFormation.positions);
-    setCurrentFormation(customFormation);
-  }, [positions]);
+    updateFormation(customFormation);
+  }, [positions, updateFormation]);
 
   const handlePlayerSelect = useCallback((player: Player) => {
     if (!selectedPositionForPlayer) return;
 
-    setPositions(prev => prev.map(pos => {
+    updatePositions(prev => prev.map((pos: Position) => {
       if (pos.id === selectedPositionForPlayer.id) {
         // If position already has a player, move them to sub
         if (pos.player) {
@@ -99,10 +100,10 @@ export default function Home() {
     setShowPlayerSelector(false);
     setSelectedPosition(undefined);
     setSelectedPositionForPlayer(null);
-  }, [selectedPositionForPlayer]);
+  }, [selectedPositionForPlayer, updatePositions]);
 
   const handleRemovePlayer = useCallback((positionId: string) => {
-    setPositions(prev => prev.map(pos => {
+    updatePositions(prev => prev.map((pos: Position) => {
       if (pos.id === positionId) {
         // Move sub to main position if exists, otherwise clear
         if (pos.sub) {
@@ -112,17 +113,17 @@ export default function Home() {
       }
       return pos;
     }));
-  }, []);
+  }, [updatePositions]);
 
   const handleClearAll = useCallback(() => {
-    setPositions(prev => prev.map(pos => ({ ...pos, player: undefined, sub: undefined, subs: [] })));
+    clearAll();
     setSelectedPosition(undefined);
-  }, []);
+  }, [clearAll]);
 
   const handleReplacePlayer = useCallback((newPlayer: Player) => {
     if (!actionPosition) return;
     
-    setPositions(prev => prev.map(pos => {
+    updatePositions(prev => prev.map((pos: Position) => {
       if (pos.id === actionPosition.id) {
         // Move current player to subs if they exist
         const currentSubs = pos.subs || [];
@@ -136,12 +137,12 @@ export default function Home() {
     
     setShowActionModal(false);
     setActionPosition(null);
-  }, [actionPosition]);
+  }, [actionPosition, updatePositions]);
 
   const handleAddSubstitute = useCallback((player: Player) => {
     if (!actionPosition) return;
     
-    setPositions(prev => prev.map(pos => {
+    updatePositions(prev => prev.map((pos: Position) => {
       if (pos.id === actionPosition.id) {
         const currentSubs = pos.subs || [];
         // Limit to 4 subs
@@ -154,7 +155,7 @@ export default function Home() {
     
     setShowActionModal(false);
     setActionPosition(null);
-  }, [actionPosition]);
+  }, [actionPosition, updatePositions]);
 
   const generateLineupText = useCallback(() => {
     let text = `Formation: ${currentFormation.name}\n`;
@@ -360,8 +361,7 @@ export default function Home() {
                   <div className="space-y-3">
                     <button
                       onClick={() => {
-                        setPositions(formations['4-3-3 (1)'].positions);
-                        setCurrentFormation(formations['4-3-3 (1)']);
+                        updateFormation(formations['4-3-3 (1)']);
                       }}
                       className="w-full bg-white/10 text-white/80 py-2 px-4 rounded border border-white/20 hover:bg-white/20 transition-colors"
                     >
@@ -369,8 +369,7 @@ export default function Home() {
                     </button>
                     <button
                       onClick={() => {
-                        setPositions(formations['3-5-2'].positions);
-                        setCurrentFormation(formations['3-5-2']);
+                        updateFormation(formations['3-5-2']);
                       }}
                       className="w-full bg-white/10 text-white/80 py-2 px-4 rounded border border-white/20 hover:bg-white/20 transition-colors"
                     >
