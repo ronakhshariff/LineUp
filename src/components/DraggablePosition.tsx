@@ -64,9 +64,9 @@ const DraggablePosition: React.FC<DraggablePositionProps> = ({
       {position.subs && position.subs.length > 0 && (
         <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 text-center space-y-0.5">
           {position.subs.slice(0, 4).map((sub, index) => (
-            <div
+            <button
               key={sub.id}
-              className="text-xs font-medium text-cyan-100 whitespace-nowrap text-center cursor-pointer hover:text-red-300 transition-colors group relative"
+              className="text-xs font-medium text-cyan-100 whitespace-nowrap text-center cursor-pointer hover:text-red-300 transition-colors group relative py-1 px-2 rounded hover:bg-red-500/20 active:bg-red-500/30"
               onClick={() => onRemoveSub && onRemoveSub(position.id, index)}
               title={`Click to remove ${sub.name}`}
             >
@@ -74,7 +74,7 @@ const DraggablePosition: React.FC<DraggablePositionProps> = ({
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 ×
               </span>
-            </div>
+            </button>
           ))}
         </div>
       )}
