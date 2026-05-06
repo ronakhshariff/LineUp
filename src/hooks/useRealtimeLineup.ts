@@ -31,9 +31,16 @@ export const useRealtimeLineup = (initialFormation: Formation) => {
   const updatePositions = useCallback((updater: (prev: Position[]) => Position[]) => {
     const newPositions = updater(positions);
     console.log('Firebase updating positions:', newPositions);
+    // Clean up undefined values to null for Firebase
+    const cleanedPositions = newPositions.map(pos => ({
+      ...pos,
+      player: pos.player || null,
+      sub: pos.sub || null,
+      subs: pos.subs || []
+    }));
     const lineupRef = ref(database, 'lineup');
     update(lineupRef, {
-      positions: newPositions,
+      positions: cleanedPositions,
       lastUpdated: Date.now()
     }).catch(error => {
       console.error('Error updating positions:', error);
@@ -58,8 +65,8 @@ export const useRealtimeLineup = (initialFormation: Formation) => {
     const lineupRef = ref(database, 'lineup');
     const clearedPositions = currentFormation.positions.map(pos => ({ 
       ...pos, 
-      player: undefined, 
-      sub: undefined, 
+      player: null, 
+      sub: null, 
       subs: [] 
     }));
     update(lineupRef, {
