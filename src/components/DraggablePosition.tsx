@@ -54,7 +54,7 @@ const DraggablePosition: React.FC<DraggablePositionProps> = ({
         </div>
       ) : (
         <div className="w-14 h-14 sm:w-12 sm:h-12 rounded-full bg-white/10 border border-white/40 flex items-center justify-center text-white/80 text-xs font-medium cursor-pointer hover:bg-white/20 active:bg-white/30">
-          {position.role}
+          {position.id}
         </div>
       )}
       
