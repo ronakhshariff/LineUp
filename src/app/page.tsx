@@ -140,6 +140,7 @@ export default function Home() {
   }, [actionPosition, updatePositions]);
 
   const handleSubstituteClick = useCallback((positionId: string, subIndex: number, sub: Player) => {
+    console.log('handleSubstituteClick called with:', { positionId, subIndex, sub });
     setSelectedSubstitute({ positionId, subIndex, sub });
     setShowSubstituteActionModal(true);
   }, []);
@@ -160,19 +161,38 @@ export default function Home() {
     setSelectedSubstitute(null);
   }, [selectedSubstitute, updatePositions]);
 
-  const handleAddSubstitute = useCallback((newPlayer: Player) => {
-    if (!selectedSubstitute) return;
-    
+  // Called from ActionModal when adding a first/new sub to a starting player
+  const handleAddSubFromActionModal = useCallback((newPlayer: Player) => {
+    if (!actionPosition) return;
+
     updatePositions(prev => prev.map((pos: Position) => {
-      if (pos.id === selectedSubstitute.positionId && pos.subs) {
-        const currentSubs = [...pos.subs];
+      if (pos.id === actionPosition.id) {
+        const currentSubs = pos.subs || [];
         if (currentSubs.length < 4) {
           return { ...pos, subs: [...currentSubs, newPlayer] };
         }
       }
       return pos;
     }));
-    
+
+    setShowActionModal(false);
+    setActionPosition(null);
+  }, [actionPosition, updatePositions]);
+
+  // Called from SubstituteActionModal when adding another sub alongside an existing one
+  const handleAddSubstitute = useCallback((newPlayer: Player) => {
+    if (!selectedSubstitute) return;
+
+    updatePositions(prev => prev.map((pos: Position) => {
+      if (pos.id === selectedSubstitute.positionId) {
+        const currentSubs = pos.subs || [];
+        if (currentSubs.length < 4) {
+          return { ...pos, subs: [...currentSubs, newPlayer] };
+        }
+      }
+      return pos;
+    }));
+
     setShowSubstituteActionModal(false);
     setSelectedSubstitute(null);
   }, [selectedSubstitute, updatePositions]);
@@ -484,7 +504,7 @@ export default function Home() {
             setActionPosition(null);
           }}
           onReplace={handleReplacePlayer}
-          onAddSub={handleAddSubstitute}
+          onAddSub={handleAddSubFromActionModal}
         />
       )}
 
