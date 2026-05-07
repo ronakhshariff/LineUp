@@ -27,25 +27,27 @@ export const useRealtimeLineup = (initialFormation: Formation) => {
     return () => unsubscribe();
   }, [initialFormation]);
 
-  // Update positions in real-time
+  // Update positions: apply immediately to local state, then sync to Firebase
   const updatePositions = useCallback((updater: (prev: Position[]) => Position[]) => {
-    const newPositions = updater(positions);
-    console.log('Firebase updating positions:', newPositions);
-    // Clean up undefined values to null for Firebase
-    const cleanedPositions = newPositions.map(pos => ({
-      ...pos,
-      player: pos.player || null,
-      sub: pos.sub || null,
-      subs: pos.subs || []
-    }));
-    const lineupRef = ref(database, 'lineup');
-    update(lineupRef, {
-      positions: cleanedPositions,
-      lastUpdated: Date.now()
-    }).catch(error => {
-      console.error('Error updating positions:', error);
+    setPositions(prev => {
+      const newPositions = updater(prev);
+      // Clean up undefined values for Firebase
+      const cleanedPositions = newPositions.map(pos => ({
+        ...pos,
+        player: pos.player ?? null,
+        sub: pos.sub ?? null,
+        subs: pos.subs ?? [],
+      }));
+      const lineupRef = ref(database, 'lineup');
+      update(lineupRef, {
+        positions: cleanedPositions,
+        lastUpdated: Date.now(),
+      }).catch(error => {
+        console.error('Error updating positions:', error);
+      });
+      return newPositions;
     });
-  }, [positions]);
+  }, []);
 
   // Update formation in real-time
   const updateFormation = useCallback((newFormation: Formation) => {
