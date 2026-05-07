@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { User, Users, UserMinus, X } from 'lucide-react';
-import { Player } from '@/types';
+import { Player, Position } from '@/types';
 import PlayerSelector from './PlayerSelector';
 
 interface SubstituteActionModalProps {
@@ -29,9 +29,33 @@ const SubstituteActionModal: React.FC<SubstituteActionModalProps> = ({
   const [showPlayerSelector, setShowPlayerSelector] = useState(false);
   const [action, setAction] = useState<'replace' | 'add' | null>(null);
 
+  const handleReplaceSub = useCallback((newPlayer: Player) => {
+    console.log('SubstituteActionModal: handleReplaceSub called with', newPlayer);
+    if (!substitute) return;
+    
+    onReplace(newPlayer);
+    setShowPlayerSelector(false);
+  }, [substitute, onReplace]);
+
+  const handleAddSub = useCallback((newPlayer: Player) => {
+    console.log('SubstituteActionModal: handleAddSub called with', newPlayer);
+    if (!substitute) return;
+    
+    onAdd(newPlayer);
+    setShowPlayerSelector(false);
+  }, [substitute, onAdd]);
+
+  const handleRemoveSub = useCallback(() => {
+    console.log('SubstituteActionModal: handleRemoveSub called');
+    if (!substitute) return;
+    
+    onRemove();
+    onClose();
+  }, [substitute, onRemove, onClose]);
+
   if (!isOpen) return null;
 
-    return (
+  return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
         {/* Header */}
@@ -79,7 +103,6 @@ const SubstituteActionModal: React.FC<SubstituteActionModalProps> = ({
         <div className="space-y-3">
           <button
             onClick={() => {
-              // This will trigger player selector for replacement
               setAction('replace');
               setShowPlayerSelector(true);
             }}
@@ -91,7 +114,6 @@ const SubstituteActionModal: React.FC<SubstituteActionModalProps> = ({
 
           <button
             onClick={() => {
-              // This will trigger player selector for adding new sub
               setAction('add');
               setShowPlayerSelector(true);
             }}
