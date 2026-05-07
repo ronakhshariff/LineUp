@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { User, Users, UserMinus, X } from 'lucide-react';
 import { Player } from '@/types';
+import PlayerSelector from './PlayerSelector';
 
 interface SubstituteActionModalProps {
   isOpen: boolean;
@@ -24,9 +26,12 @@ const SubstituteActionModal: React.FC<SubstituteActionModalProps> = ({
   onAdd,
   onRemove,
 }) => {
+  const [showPlayerSelector, setShowPlayerSelector] = useState(false);
+  const [action, setAction] = useState<'replace' | 'add' | null>(null);
+
   if (!isOpen) return null;
 
-  return (
+    return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl">
         {/* Header */}
@@ -48,12 +53,35 @@ const SubstituteActionModal: React.FC<SubstituteActionModalProps> = ({
           </button>
         </div>
 
+        {/* Player Selector for Replace/Add */}
+        {showPlayerSelector && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+            <PlayerSelector
+              onSelect={(newPlayer) => {
+                if (action === 'replace') {
+                  onReplace(newPlayer);
+                } else if (action === 'add') {
+                  onAdd(newPlayer);
+                }
+                setShowPlayerSelector(false);
+                setAction(null);
+              }}
+              onClose={() => {
+                setShowPlayerSelector(false);
+                setAction(null);
+              }}
+              existingPlayers={[]}
+            />
+          </div>
+        )}
+
         {/* Actions */}
         <div className="space-y-3">
           <button
             onClick={() => {
               // This will trigger player selector for replacement
-              onReplace(substitute);
+              setAction('replace');
+              setShowPlayerSelector(true);
             }}
             className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2"
           >
@@ -64,7 +92,8 @@ const SubstituteActionModal: React.FC<SubstituteActionModalProps> = ({
           <button
             onClick={() => {
               // This will trigger player selector for adding new sub
-              onAdd(substitute);
+              setAction('add');
+              setShowPlayerSelector(true);
             }}
             className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2"
           >

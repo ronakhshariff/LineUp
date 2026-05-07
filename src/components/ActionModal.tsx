@@ -35,6 +35,8 @@ const defaultPlayers: Player[] = [
   { id: '20', name: 'Aidan' },
   { id: '21', name: 'Easton' },
   { id: '22', name: 'Samim' },
+  { id: '23', name: 'Ray' },
+  { id: '24', name: 'Brad' },
 ];
 
 const ActionModal: React.FC<ActionModalProps> = ({
